@@ -3,9 +3,11 @@ package com.progsail.fastlink.admin.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.progsail.fastlink.admin.common.convention.result.Result;
 import com.progsail.fastlink.admin.common.convention.result.Results;
+import com.progsail.fastlink.admin.dto.req.UserLoginReqDTO;
 import com.progsail.fastlink.admin.dto.req.UserRegisterReqDTO;
 import com.progsail.fastlink.admin.dto.req.UserUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.UserActualRespDTO;
+import com.progsail.fastlink.admin.dto.resp.UserLoginRespDTO;
 import com.progsail.fastlink.admin.dto.resp.UserRespDTO;
 import com.progsail.fastlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -56,11 +58,27 @@ public class UserController {
     }
 
     /**
-     * 用户信息登录
+     * 用户信息修改
      */
     @PutMapping("/api/fast-link/v1/user/update")
     public Result<Void> updateUser(@RequestBody UserUpdateReqDTO requestParam) {
         userService.updateUser(requestParam);
         return Results.success();
+    }
+
+    /**
+     * 用户登录
+     */
+    @PostMapping("/api/fast-link/v1/user/login")
+    public Result<UserLoginRespDTO> login(@RequestBody UserLoginReqDTO requestParam) {
+        return Results.success(userService.login(requestParam));
+    }
+
+    /**
+     * 检查用户是否登录
+     */
+    @GetMapping("/api/fast-link/admin/v1/user/check-login")
+    public Result<Boolean> checkLogin(@RequestParam("username") String username, @RequestParam("token") String token) {
+        return Results.success(userService.checkLogin(username, token));
     }
 }
