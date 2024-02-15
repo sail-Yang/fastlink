@@ -146,5 +146,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,UserDO> implements U
         return stringRedisTemplate.opsForHash().get(USER_LOGIN_KEY + username, token) != null;
     }
 
+    @Override
+    public void logout(String username, String token) {
+        if(!checkLogin(username,token)){
+            throw new ClientException(UserErrorCodeEnum.USER_NOT_LOGIN);
+        }
+        stringRedisTemplate.delete(USER_LOGIN_KEY + username);
+    }
+
 
 }
