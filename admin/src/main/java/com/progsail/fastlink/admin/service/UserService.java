@@ -3,6 +3,7 @@ package com.progsail.fastlink.admin.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.progsail.fastlink.admin.dao.entity.UserDO;
 import com.progsail.fastlink.admin.dto.req.UserRegisterReqDTO;
+import com.progsail.fastlink.admin.dto.req.UserUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.UserRespDTO;
 
 /**
@@ -33,4 +34,11 @@ public interface UserService extends IService<UserDO> {
      * @return
      */
     void register(UserRegisterReqDTO requestParam);
+
+    /**
+     * 用户更新
+     * @param requestParam
+     * @return
+     */
+    void updateUser(UserUpdateReqDTO requestParam);
 }

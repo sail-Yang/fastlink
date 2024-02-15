@@ -10,6 +10,7 @@ import com.progsail.fastlink.admin.common.enums.UserErrorCodeEnum;
 import com.progsail.fastlink.admin.dao.entity.UserDO;
 import com.progsail.fastlink.admin.dao.mapper.UserMapper;
 import com.progsail.fastlink.admin.dto.req.UserRegisterReqDTO;
+import com.progsail.fastlink.admin.dto.req.UserUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.UserRespDTO;
 import com.progsail.fastlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -80,4 +81,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,UserDO> implements U
             lock.unlock();
         }
     }
+
+    @Override
+    public void updateUser(UserUpdateReqDTO requestParam) {
+        // TODO: 判断用户是否是已登录用户
+
+        LambdaQueryWrapper<UserDO> updateWrapper = Wrappers.lambdaQuery(UserDO.class)
+                .eq(UserDO::getUsername,requestParam.getUsername());
+        baseMapper.update(BeanUtil.toBean(requestParam,UserDO.class),updateWrapper);
+    }
+
+
 }
