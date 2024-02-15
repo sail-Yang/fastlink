@@ -35,5 +35,10 @@ public class UserUpdateReqDTO {
      * 邮箱
      */
     private String mail;
+
+    /**
+     * 用户Token凭证
+     */
+    private String token;
 }
 

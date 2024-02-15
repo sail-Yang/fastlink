@@ -96,7 +96,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,UserDO> implements U
 
     @Override
     public void updateUser(UserUpdateReqDTO requestParam) {
-        // TODO: 判断用户是否是已登录用户
 
         LambdaQueryWrapper<UserDO> updateWrapper = Wrappers.lambdaQuery(UserDO.class)
                 .eq(UserDO::getUsername,requestParam.getUsername());
@@ -110,9 +109,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,UserDO> implements U
                 .eq(UserDO::getDelFlag,0);
         UserDO userDO = baseMapper.selectOne(queryWrapper);
         if(null == userDO) {
+            stringRedisTemplate.delete(USER_LOGIN_KEY + requestParam.getUsername());
             throw  new ClientException(UserErrorCodeEnum.USER_NULL);
         }
         if(!userDO.getPassword().equals(requestParam.getPassword())){
+            stringRedisTemplate.delete(USER_LOGIN_KEY + requestParam.getUsername());
             throw new ClientException(UserErrorCodeEnum.USER_PASSWORD_ERROR);
         }
         Map<Object,Object> hasLoginMap = stringRedisTemplate.opsForHash().entries(USER_LOGIN_KEY + requestParam.getUsername());
