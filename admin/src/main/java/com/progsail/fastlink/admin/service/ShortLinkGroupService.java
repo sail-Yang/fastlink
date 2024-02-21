@@ -2,6 +2,8 @@ package com.progsail.fastlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.progsail.fastlink.admin.dao.entity.GroupDO;
+import com.progsail.fastlink.admin.dto.req.ShortLinkGroupDeleteReqDTO;
+import com.progsail.fastlink.admin.dto.req.ShortLinkGroupSortReqDTO;
 import com.progsail.fastlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.ShortLinkGroupRespDTO;
 
@@ -38,5 +40,17 @@ public interface ShortLinkGroupService extends IService<GroupDO> {
      * @param requestParam
      */
     void updateGroup(ShortLinkGroupUpdateReqDTO requestParam);
+
+    /**
+     * 删除分组
+     * @param requestParam
+     */
+    void deleteGroup(ShortLinkGroupDeleteReqDTO requestParam);
+
+    /**
+     * 分组排序
+     * @param requestParam
+     */
+    void sortGroup(List<ShortLinkGroupSortReqDTO> requestParam);
 }
 

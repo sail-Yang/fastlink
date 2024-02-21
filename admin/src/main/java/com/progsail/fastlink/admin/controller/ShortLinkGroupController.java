@@ -2,7 +2,9 @@ package com.progsail.fastlink.admin.controller;
 
 import com.progsail.fastlink.admin.common.convention.result.Result;
 import com.progsail.fastlink.admin.common.convention.result.Results;
+import com.progsail.fastlink.admin.dto.req.ShortLinkGroupDeleteReqDTO;
 import com.progsail.fastlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
+import com.progsail.fastlink.admin.dto.req.ShortLinkGroupSortReqDTO;
 import com.progsail.fastlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.ShortLinkGroupRespDTO;
 import com.progsail.fastlink.admin.service.ShortLinkGroupService;
@@ -46,6 +48,18 @@ public class ShortLinkGroupController {
     @PutMapping("/api/fast-link/v1/group/update")
     public Result<Void> updateGroup(@RequestBody ShortLinkGroupUpdateReqDTO requestParam) {
         shortLinkGroupService.updateGroup(requestParam);
+        return Results.success();
+    }
+
+    @DeleteMapping("/api/fast-link/v1/group/delete")
+    public Result<Void> deleteGroup(@RequestBody ShortLinkGroupDeleteReqDTO requestParam) {
+        shortLinkGroupService.deleteGroup(requestParam);
+        return Results.success();
+    }
+
+    @PostMapping("/api/fast-link/v1/group/sort")
+    public Result<Void> listGroup(@RequestBody List<ShortLinkGroupSortReqDTO> requestParam) {
+        shortLinkGroupService.sortGroup(requestParam);
         return Results.success();
     }
 }

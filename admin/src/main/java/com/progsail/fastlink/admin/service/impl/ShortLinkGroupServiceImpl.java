@@ -9,6 +9,8 @@ import com.progsail.fastlink.admin.common.biz.user.UserContext;
 import com.progsail.fastlink.admin.common.convention.exception.ServiceException;
 import com.progsail.fastlink.admin.dao.entity.GroupDO;
 import com.progsail.fastlink.admin.dao.mapper.GroupMapper;
+import com.progsail.fastlink.admin.dto.req.ShortLinkGroupDeleteReqDTO;
+import com.progsail.fastlink.admin.dto.req.ShortLinkGroupSortReqDTO;
 import com.progsail.fastlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.ShortLinkGroupRespDTO;
 import com.progsail.fastlink.admin.service.ShortLinkGroupService;
@@ -78,5 +80,29 @@ public class ShortLinkGroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO>
         baseMapper.update(groupDO,updateWrapper);
     }
 
+    @Override
+    public void deleteGroup(ShortLinkGroupDeleteReqDTO requestParam) {
+        LambdaUpdateWrapper<GroupDO> deleteWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                .eq(GroupDO::getGid, requestParam.getGid())
+                .eq(GroupDO::getUsername, UserContext.getUsername())
+                .eq(GroupDO::getDelFlag, 0);
+        GroupDO groupDO = new GroupDO();
+        groupDO.setDelFlag(1);
+        baseMapper.update(groupDO,deleteWrapper);
+    }
+
+    @Override
+    public void sortGroup(List<ShortLinkGroupSortReqDTO> requestParam) {
+        requestParam.forEach(each -> {
+            GroupDO groupDO = GroupDO.builder()
+                    .sortOrder(each.getSortOrder())
+                    .build();
+            LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                    .eq(GroupDO::getUsername, UserContext.getUsername())
+                    .eq(GroupDO::getGid, each.getGid())
+                    .eq(GroupDO::getDelFlag, 0);
+            baseMapper.update(groupDO, updateWrapper);
+        });
+    }
 
 }
