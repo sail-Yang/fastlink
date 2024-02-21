@@ -45,19 +45,19 @@ public class ShortLinkGroupController {
     /**
      * 修改分组
      */
-    @PutMapping("/api/fast-link/v1/group/update")
+    @PutMapping("/api/fast-link/admin/v1/group/update")
     public Result<Void> updateGroup(@RequestBody ShortLinkGroupUpdateReqDTO requestParam) {
         shortLinkGroupService.updateGroup(requestParam);
         return Results.success();
     }
 
-    @DeleteMapping("/api/fast-link/v1/group/delete")
+    @DeleteMapping("/api/fast-link/admin/v1/group/delete")
     public Result<Void> deleteGroup(@RequestBody ShortLinkGroupDeleteReqDTO requestParam) {
         shortLinkGroupService.deleteGroup(requestParam);
         return Results.success();
     }
 
-    @PostMapping("/api/fast-link/v1/group/sort")
+    @PostMapping("/api/fast-link/admin/v1/group/sort")
     public Result<Void> listGroup(@RequestBody List<ShortLinkGroupSortReqDTO> requestParam) {
         shortLinkGroupService.sortGroup(requestParam);
         return Results.success();

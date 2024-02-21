@@ -27,7 +27,7 @@ public class UserController {
     /**
     * 根据用户名查询用户信息（脱敏）
     */
-    @GetMapping("/api/fast-link/v1/user/{username}")
+    @GetMapping("/api/fast-link/admin/v1/user/{username}")
     public Result<UserRespDTO> getUserByUsername(@PathVariable("username") String username){
         return Results.success(userService.getUserByUsername(username));
     }
@@ -35,7 +35,7 @@ public class UserController {
     /**
      * 根据用户名查询用户信息（无脱敏）
      */
-    @GetMapping("/api/fast-link/v1/user/actual/{username}")
+    @GetMapping("/api/fast-link/admin/v1/user/actual/{username}")
     public Result<UserActualRespDTO> getActualUserByUsername(@PathVariable("username") String username){
         return Results.success(BeanUtil.toBean(userService.getUserByUsername(username),UserActualRespDTO.class));
     }
@@ -43,7 +43,7 @@ public class UserController {
     /**
      * 查询用户名是否存在
      */
-    @GetMapping("/api/fast-link/v1/user/has-username")
+    @GetMapping("/api/fast-link/admin/v1/user/has-username")
     public Result<Boolean> hasUsername(@RequestParam("username") String username) {
         return Results.success(userService.hasUsername(username));
     }
@@ -51,7 +51,7 @@ public class UserController {
     /**
      * 用户注册
      */
-    @PostMapping("/api/fast-link/v1/user/register")
+    @PostMapping("/api/fast-link/admin/v1/user/register")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam) {
         userService.register(requestParam);
         return Results.success();
@@ -60,7 +60,7 @@ public class UserController {
     /**
      * 用户信息修改
      */
-    @PutMapping("/api/fast-link/v1/user/update")
+    @PutMapping("/api/fast-link/admin/v1/user/update")
     public Result<Void> updateUser(@RequestBody UserUpdateReqDTO requestParam) {
         userService.updateUser(requestParam);
         return Results.success();
@@ -69,7 +69,7 @@ public class UserController {
     /**
      * 用户登录
      */
-    @PostMapping("/api/fast-link/v1/user/login")
+    @PostMapping("/api/fast-link/admin/v1/user/login")
     public Result<UserLoginRespDTO> login(@RequestBody UserLoginReqDTO requestParam) {
         return Results.success(userService.login(requestParam));
     }
