@@ -1,4 +1,4 @@
-package com.progsail.fastlink.admin.common.constant;
+package com.progsail.fastlink.project.common.constant;
 
 /**
  * @author yangfan
