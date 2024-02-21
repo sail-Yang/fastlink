@@ -1,15 +1,19 @@
 package com.progsail.fastlink.admin.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.progsail.fastlink.admin.common.convention.exception.ServiceException;
 import com.progsail.fastlink.admin.dao.entity.GroupDO;
 import com.progsail.fastlink.admin.dao.mapper.GroupMapper;
+import com.progsail.fastlink.admin.dto.resp.ShortLinkGroupRespDTO;
 import com.progsail.fastlink.admin.service.GroupService;
 import com.progsail.fastlink.admin.util.GIDRandomGeneratorUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author yangfan
@@ -47,5 +51,16 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .eq(GroupDO::getGid, gid);
         GroupDO groupDO = baseMapper.selectOne(queryWrapper);
         return groupDO != null;
+    }
+
+    @Override
+    public List<ShortLinkGroupRespDTO> sortList() {
+        //TODO: 从context里获取用户
+        LambdaQueryWrapper<GroupDO> queryWrapper = Wrappers.lambdaQuery(GroupDO.class)
+                .eq(GroupDO::getDelFlag, 0)
+                .eq(GroupDO::getUsername, "yangfan")
+                .orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
+        List<GroupDO> groupDOList = baseMapper.selectList(queryWrapper);
+        return BeanUtil.copyToList(groupDOList, ShortLinkGroupRespDTO.class);
     }
 }
