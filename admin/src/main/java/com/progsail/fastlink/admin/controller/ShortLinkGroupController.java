@@ -3,13 +3,11 @@ package com.progsail.fastlink.admin.controller;
 import com.progsail.fastlink.admin.common.convention.result.Result;
 import com.progsail.fastlink.admin.common.convention.result.Results;
 import com.progsail.fastlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
+import com.progsail.fastlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.ShortLinkGroupRespDTO;
-import com.progsail.fastlink.admin.service.GroupService;
+import com.progsail.fastlink.admin.service.ShortLinkGroupService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,14 +21,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ShortLinkGroupController {
 
-    private final GroupService groupService;
+    private final ShortLinkGroupService shortLinkGroupService;
 
     /**
      * 新增短链接分组
      */
     @PostMapping("/api/fast-link/admin/v1/group/save")
     public Result<Void> save(@RequestBody ShortLinkGroupSaveReqDTO requestParam) {
-        groupService.saveGroup(requestParam.getName());
+        shortLinkGroupService.saveGroup(requestParam.getName());
         return Results.success();
     }
 
@@ -39,6 +37,15 @@ public class ShortLinkGroupController {
      */
     @GetMapping("/api/fast-link/admin/v1/group/list")
     public Result<List<ShortLinkGroupRespDTO>> listGroup() {
-        return Results.success(groupService.sortList());
+        return Results.success(shortLinkGroupService.sortList());
+    }
+
+    /**
+     * 修改分组
+     */
+    @PutMapping("/api/fast-link/v1/group/update")
+    public Result<Void> updateGroup(@RequestBody ShortLinkGroupUpdateReqDTO requestParam) {
+        shortLinkGroupService.updateGroup(requestParam);
+        return Results.success();
     }
 }

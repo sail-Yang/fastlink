@@ -2,6 +2,7 @@ package com.progsail.fastlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.progsail.fastlink.admin.dao.entity.GroupDO;
+import com.progsail.fastlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.ShortLinkGroupRespDTO;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  * @description: 短链接分组服务层
  * @date 2024/2/17 17:18
  */
-public interface GroupService extends IService<GroupDO> {
+public interface ShortLinkGroupService extends IService<GroupDO> {
     /**
      * 保存分组
      * @param name
@@ -32,5 +33,10 @@ public interface GroupService extends IService<GroupDO> {
      */
     List<ShortLinkGroupRespDTO> sortList();
 
+    /**
+     * 更新分组
+     * @param requestParam
+     */
+    void updateGroup(ShortLinkGroupUpdateReqDTO requestParam);
 }
 

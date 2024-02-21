@@ -19,6 +19,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupDO extends BaseDO {
+
+    public  GroupDO(String name) {
+        this.name = name;
+    }
     /**
      * id
      */
