@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.progsail.fastlink.admin.common.biz.user.UserContext;
 import com.progsail.fastlink.admin.common.convention.exception.ServiceException;
 import com.progsail.fastlink.admin.dao.entity.GroupDO;
 import com.progsail.fastlink.admin.dao.mapper.GroupMapper;
@@ -31,10 +32,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         while(hasGid(gid)){
             gid = GIDRandomGeneratorUtil.generateRandomID();
         }
-        //TODO username还没有从网关获取
+        //TODO username暂时从UserContext获取，未从网关获取
         GroupDO groupDo = GroupDO.builder()
                 .gid(gid)
                 .name(name)
+                .username(UserContext.getUsername())
+                .sortOrder(0)
                 .build();
         try {
             baseMapper.insert(groupDo);
@@ -55,10 +58,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     @Override
     public List<ShortLinkGroupRespDTO> sortList() {
-        //TODO: 从context里获取用户
         LambdaQueryWrapper<GroupDO> queryWrapper = Wrappers.lambdaQuery(GroupDO.class)
                 .eq(GroupDO::getDelFlag, 0)
-                .eq(GroupDO::getUsername, "yangfan")
+                .eq(GroupDO::getUsername, UserContext.getUsername())
                 .orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
         List<GroupDO> groupDOList = baseMapper.selectList(queryWrapper);
         return BeanUtil.copyToList(groupDOList, ShortLinkGroupRespDTO.class);
