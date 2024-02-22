@@ -24,9 +24,9 @@ public class UserTransmitFilter implements Filter {
     private final StringRedisTemplate stringRedisTemplate;
 
     public static final List<String> IGNORE_URL = Lists.newArrayList(
-            "/api/fast-link/v1/user/register",
-            "/api/fast-link/v1/user/has-username",
-            "/api/fast-link/v1/user/login",
+            "/api/fast-link/admin/v1/user/register",
+            "/api/fast-link/admin/v1/user/has-username",
+            "/api/fast-link/admin/v1/user/login",
             "/api/fast-link/admin/v1/user/check-login",
             "/api/fast-link/admin/v1/user/logout"
     );
