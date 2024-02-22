@@ -47,6 +47,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .validDateType(requestParam.getValidDateType())
                 .validDate(requestParam.getValidDate())
                 .describe(requestParam.getDescribe())
+                .favicon(requestParam.getFavicon())
                 .shortUrl(shortLinkSuffix)
                 .enableStatus(0)
                 .clickNum(0)

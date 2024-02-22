@@ -92,4 +92,9 @@ public class ShortLinkDO extends BaseDO implements Serializable {
      */
     @TableField("`describe`")
     private String describe;
+
+    /**
+     * 图标链接
+     */
+    private String favicon;
 }
