@@ -1,13 +1,19 @@
 package com.progsail.fastlink.project.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.text.StrBuilder;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.progsail.fastlink.project.common.convention.exception.ServiceException;
 import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
 import com.progsail.fastlink.project.dao.mapper.ShortLinkMapper;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
+import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
+import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
 import com.progsail.fastlink.project.service.ShortLinkService;
 import com.progsail.fastlink.project.util.HashUtil;
 import lombok.RequiredArgsConstructor;
@@ -84,5 +90,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             customGenerateCount++;
         }
         return shortUrl;
+    }
+
+    @Override
+    public IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkPageReqDTO requestParam) {
+        LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid,requestParam.getGid())
+                .eq(ShortLinkDO::getDelFlag, 0);
+        IPage<ShortLinkDO> page = baseMapper.selectPage(requestParam, queryWrapper);
+        return page.convert(each -> BeanUtil.toBean(each, ShortLinkPageRespDTO.class));
     }
 }

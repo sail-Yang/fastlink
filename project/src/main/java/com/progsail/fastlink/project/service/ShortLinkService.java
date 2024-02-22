@@ -1,9 +1,12 @@
 package com.progsail.fastlink.project.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
+import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
+import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
 
 /**
  * @author yangfan
@@ -15,4 +18,6 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
     ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam);
 
     String generateSuffix(ShortLinkCreateReqDTO requestParam);
+
+    IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkPageReqDTO requestParam);
 }
