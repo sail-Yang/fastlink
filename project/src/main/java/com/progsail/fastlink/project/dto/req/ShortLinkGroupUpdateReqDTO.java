@@ -9,7 +9,7 @@ import lombok.Data;
  * @date 2024/2/23 18:44
  */
 @Data
-public class UpdateShortLinkGroupReqDTO {
+public class ShortLinkGroupUpdateReqDTO {
 
     /**
      * 短链接
