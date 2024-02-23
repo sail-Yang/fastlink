@@ -13,12 +13,16 @@ import com.progsail.fastlink.admin.dto.req.ShortLinkGroupDeleteReqDTO;
 import com.progsail.fastlink.admin.dto.req.ShortLinkGroupSortReqDTO;
 import com.progsail.fastlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.ShortLinkGroupRespDTO;
+import com.progsail.fastlink.admin.remote.ShortLinkRemoteService;
+import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.admin.service.ShortLinkGroupService;
 import com.progsail.fastlink.admin.util.GIDRandomGeneratorUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author yangfan
@@ -29,6 +33,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ShortLinkGroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements ShortLinkGroupService {
+
+    private final ShortLinkRemoteService shortLinkRemoteService;
 
     @Override
     public void saveGroup(String name) {
@@ -67,7 +73,13 @@ public class ShortLinkGroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO>
                 .eq(GroupDO::getUsername, UserContext.getUsername())
                 .orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
         List<GroupDO> groupDOList = baseMapper.selectList(queryWrapper);
-        return BeanUtil.copyToList(groupDOList, ShortLinkGroupRespDTO.class);
+        List<ShortLinkGroupRespDTO> shortLinkGroupRespList = BeanUtil.copyToList(groupDOList, ShortLinkGroupRespDTO.class);
+
+        List<ShortLinkGroupCountRespDTO> countList = shortLinkRemoteService.groupShortLinkCount(
+                groupDOList.stream().map(GroupDO::getGid).toList()
+        ).getData();
+        Map<String, Integer> gidCountMap = countList.stream().collect(Collectors.toMap(ShortLinkGroupCountRespDTO::getGid, ShortLinkGroupCountRespDTO::getShortLinkCount));
+        return shortLinkGroupRespList.stream().peek(each -> each.setShortLinkCount(gidCountMap.getOrDefault(each.getGid(), 0))).toList();
     }
 
     @Override
