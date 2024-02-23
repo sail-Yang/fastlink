@@ -9,6 +9,7 @@ import com.progsail.fastlink.admin.remote.ShortLinkRemoteService;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkPageReqDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
+import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,6 +63,15 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService {
 //                .addHeaders(headers)
 //                .form(requestMap)
 //                .execute().body();
+        return JSON.parseObject(resultPageStr, new TypeReference<>() {
+        });
+    }
+
+    @Override
+    public Result<List<ShortLinkGroupCountRespDTO>> groupShortLinkCount(List<String> requestParam) {
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("gidList", requestParam);
+        String resultPageStr = HttpUtil.get("http://127.0.0.1:8001/api/fast-link/project/v1/count",requestMap);
         return JSON.parseObject(resultPageStr, new TypeReference<>() {
         });
     }
