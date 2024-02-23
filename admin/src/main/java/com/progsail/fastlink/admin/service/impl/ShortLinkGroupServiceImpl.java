@@ -38,6 +38,11 @@ public class ShortLinkGroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO>
 
     @Override
     public void saveGroup(String name) {
+        saveGroup(UserContext.getUsername(), name);
+    }
+
+    @Override
+    public void saveGroup(String username, String name) {
         String gid = GIDRandomGeneratorUtil.generateRandomID();
         while(hasGid(gid)){
             gid = GIDRandomGeneratorUtil.generateRandomID();
@@ -46,7 +51,7 @@ public class ShortLinkGroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO>
         GroupDO groupDo = GroupDO.builder()
                 .gid(gid)
                 .name(name)
-                .username(UserContext.getUsername())
+                .username(username)
                 .sortOrder(0)
                 .build();
         try {
@@ -54,7 +59,6 @@ public class ShortLinkGroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO>
         } catch (Exception e) {
             throw new ServiceException("分组插入失败");
         }
-
     }
 
     @Override

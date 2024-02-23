@@ -16,6 +16,7 @@ import com.progsail.fastlink.admin.dto.req.UserRegisterReqDTO;
 import com.progsail.fastlink.admin.dto.req.UserUpdateReqDTO;
 import com.progsail.fastlink.admin.dto.resp.UserLoginRespDTO;
 import com.progsail.fastlink.admin.dto.resp.UserRespDTO;
+import com.progsail.fastlink.admin.service.ShortLinkGroupService;
 import com.progsail.fastlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
@@ -48,6 +49,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,UserDO> implements U
     private final RedissonClient redissonClient;
 
     private final StringRedisTemplate stringRedisTemplate;
+
+    private final ShortLinkGroupService shortLinkGroupService;
 
     @Override
     public UserRespDTO getUserByUsername(String username) {
@@ -85,6 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,UserDO> implements U
                 }
             }
             userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
+            shortLinkGroupService.saveGroup(requestParam.getUsername(), "默认分组");
             return;
         } catch (Throwable e) {
             throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);

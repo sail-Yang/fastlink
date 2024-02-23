@@ -23,6 +23,13 @@ public interface ShortLinkGroupService extends IService<GroupDO> {
     void saveGroup(String name);
 
     /**
+     * 指定用户保存分组
+     * @param name
+     * @param username
+     */
+    void saveGroup(String username, String name);
+
+    /**
      * 是否有这个Gid
      * @param gid
      * @return
