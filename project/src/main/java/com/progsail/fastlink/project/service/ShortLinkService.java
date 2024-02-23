@@ -6,7 +6,10 @@ import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
+import com.progsail.fastlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
+
+import java.util.List;
 
 /**
  * @author yangfan
@@ -20,4 +23,6 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
     String generateSuffix(ShortLinkCreateReqDTO requestParam);
 
     IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkPageReqDTO requestParam);
+
+    List<ShortLinkGroupCountRespDTO> listShortLinkGroupCount(List<String> requestParam);
 }

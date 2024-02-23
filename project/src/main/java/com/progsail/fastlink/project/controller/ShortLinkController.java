@@ -6,13 +6,13 @@ import com.progsail.fastlink.project.common.convention.result.Results;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
+import com.progsail.fastlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
 import com.progsail.fastlink.project.service.ShortLinkService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author yangfan
@@ -34,5 +34,10 @@ public class ShortLinkController {
     @GetMapping("/api/fast-link/project/v1/page")
     Result<IPage<ShortLinkPageRespDTO>> getShortLinkPage(ShortLinkPageReqDTO requestParam) {
         return Results.success(shortLinkService.pageShortLink(requestParam));
+    }
+
+    @GetMapping("/api/fast-link/project/v1/count")
+    Result<List<ShortLinkGroupCountRespDTO>> listShortLinkGroupCount(@RequestParam("gidList") List<String> requestParam) {
+        return Results.success(shortLinkService.listShortLinkGroupCount(requestParam));
     }
 }
