@@ -8,11 +8,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.progsail.fastlink.project.common.convention.exception.ClientException;
 import com.progsail.fastlink.project.common.convention.exception.ServiceException;
 import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
 import com.progsail.fastlink.project.dao.mapper.ShortLinkMapper;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
+import com.progsail.fastlink.project.dto.req.UpdateShortLinkGroupReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -24,6 +26,7 @@ import org.redisson.api.RBloomFilter;
 import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -117,5 +120,23 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
         List<Map<String, Object>> maps = baseMapper.selectMaps(queryWrapper);
         return BeanUtil.copyToList(maps, ShortLinkGroupCountRespDTO.class);
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateShortLinkGroup(UpdateShortLinkGroupReqDTO requestParam) {
+        LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, requestParam.getOldGid())
+                .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
+                .eq(ShortLinkDO::getDelFlag, 0);
+        ShortLinkDO shortLink = baseMapper.selectOne(queryWrapper);
+        if(shortLink == null) {
+            throw new ClientException("短链接不存在");
+        }
+        baseMapper.delete(queryWrapper);
+        shortLink.setGid(requestParam.getNewGid());
+        shortLink.setId(null);
+        baseMapper.insert(shortLink);
     }
 }

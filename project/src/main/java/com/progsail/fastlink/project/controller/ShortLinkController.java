@@ -5,6 +5,7 @@ import com.progsail.fastlink.project.common.convention.result.Result;
 import com.progsail.fastlink.project.common.convention.result.Results;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
+import com.progsail.fastlink.project.dto.req.UpdateShortLinkGroupReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -39,5 +40,11 @@ public class ShortLinkController {
     @GetMapping("/api/fast-link/project/v1/count")
     Result<List<ShortLinkGroupCountRespDTO>> listShortLinkGroupCount(@RequestParam("gidList") List<String> requestParam) {
         return Results.success(shortLinkService.listShortLinkGroupCount(requestParam));
+    }
+
+    @PostMapping("/api/fast-link/project/v1/update/group")
+    Result<Void> updateShortLinkGroup(@RequestBody UpdateShortLinkGroupReqDTO requestParam) {
+        shortLinkService.updateShortLinkGroup(requestParam);
+        return Results.success();
     }
 }
