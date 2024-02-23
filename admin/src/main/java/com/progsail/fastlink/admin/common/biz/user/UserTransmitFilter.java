@@ -2,6 +2,7 @@ package com.progsail.fastlink.admin.common.biz.user;
 
 import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
+import com.progsail.fastlink.admin.common.convention.exception.ClientException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,8 @@ public class UserTransmitFilter implements Filter {
             if(userInfoJsonStr != null) {
                 UserInfoDTO userInfoDTO = JSON.parseObject(userInfoJsonStr.toString(), UserInfoDTO.class);
                 UserContext.setUser(userInfoDTO);
+            }else{
+                throw new ClientException("Token验证失败");
             }
         }
 

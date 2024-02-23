@@ -55,7 +55,6 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService {
 
         String url = "http://127.0.0.1:8001/api/fast-link/project/v1/create";
         String resultPageStr = restTemplate.postForObject(url, r, String.class);
-        log.info(resultPageStr);
 //          hutool.HttpUtil方法
 //        String resultPageStr = HttpUtil
 //                .createPost("http://127.0.0.1:8001/api/fast-link/project/v1/create")
