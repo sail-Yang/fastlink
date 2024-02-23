@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
-import com.progsail.fastlink.project.dto.req.UpdateShortLinkGroupReqDTO;
+import com.progsail.fastlink.project.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -27,5 +27,5 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
 
     List<ShortLinkGroupCountRespDTO> listShortLinkGroupCount(List<String> requestParam);
 
-    void updateShortLinkGroup(UpdateShortLinkGroupReqDTO requestParam);
+    void updateShortLinkGroup(ShortLinkGroupUpdateReqDTO requestParam);
 }

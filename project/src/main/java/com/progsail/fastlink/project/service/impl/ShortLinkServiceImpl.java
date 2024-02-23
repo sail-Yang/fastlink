@@ -14,7 +14,7 @@ import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
 import com.progsail.fastlink.project.dao.mapper.ShortLinkMapper;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
-import com.progsail.fastlink.project.dto.req.UpdateShortLinkGroupReqDTO;
+import com.progsail.fastlink.project.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -125,7 +125,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateShortLinkGroup(UpdateShortLinkGroupReqDTO requestParam) {
+    public void updateShortLinkGroup(ShortLinkGroupUpdateReqDTO requestParam) {
         LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
                 .eq(ShortLinkDO::getGid, requestParam.getOldGid())
                 .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())

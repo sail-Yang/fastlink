@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.admin.common.convention.result.Result;
 import com.progsail.fastlink.admin.remote.ShortLinkRemoteService;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkPageReqDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
@@ -72,6 +73,24 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("gidList", requestParam);
         String resultPageStr = HttpUtil.get("http://127.0.0.1:8001/api/fast-link/project/v1/count",requestMap);
+        return JSON.parseObject(resultPageStr, new TypeReference<>() {
+        });
+    }
+
+    @Override
+    public Result<Void> updateShortLinkGroup(ShortLinkGroupUpdateReqDTO requestParam) {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<ShortLinkGroupUpdateReqDTO> r = new HttpEntity<>(requestParam, requestHeaders);
+        String url = "http://127.0.0.1:8001/api/fast-link/project/v1/update/group";
+        String resultPageStr = restTemplate.postForObject(url, r, String.class);
+//          hutool.HttpUtil方法
+//        String resultPageStr = HttpUtil
+//                .createPost("http://127.0.0.1:8001/api/fast-link/project/v1/create")
+//                .addHeaders(headers)
+//                .form(requestMap)
+//                .execute().body();
         return JSON.parseObject(resultPageStr, new TypeReference<>() {
         });
     }
