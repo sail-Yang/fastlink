@@ -1,5 +1,6 @@
 package com.progsail.fastlink.project.dto.req;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Data;
  * @date 2024/2/23 18:44
  */
 @Data
+@Builder
 public class ShortLinkGroupUpdateReqDTO {
 
     /**

@@ -6,6 +6,7 @@ import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkGroupUpdateReqDTO;
+import com.progsail.fastlink.project.dto.req.ShortLinkUpdateReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -28,4 +29,6 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
     List<ShortLinkGroupCountRespDTO> listShortLinkGroupCount(List<String> requestParam);
 
     void updateShortLinkGroup(ShortLinkGroupUpdateReqDTO requestParam);
+
+    void updateShortLink(ShortLinkUpdateReqDTO requestParam);
 }

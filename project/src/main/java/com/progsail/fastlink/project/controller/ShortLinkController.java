@@ -4,8 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.project.common.convention.result.Result;
 import com.progsail.fastlink.project.common.convention.result.Results;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
-import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkGroupUpdateReqDTO;
+import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
+import com.progsail.fastlink.project.dto.req.ShortLinkUpdateReqDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -45,6 +46,12 @@ public class ShortLinkController {
     @PostMapping("/api/fast-link/project/v1/update/group")
     Result<Void> updateShortLinkGroup(@RequestBody ShortLinkGroupUpdateReqDTO requestParam) {
         shortLinkService.updateShortLinkGroup(requestParam);
+        return Results.success();
+    }
+
+    @PostMapping("/api/fast-link/project/v1/update/short-link")
+    Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
+        shortLinkService.updateShortLink(requestParam);
         return Results.success();
     }
 }
