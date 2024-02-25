@@ -6,6 +6,7 @@ import com.progsail.fastlink.admin.remote.ShortLinkRemoteService;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +40,10 @@ public class ShortLinkController {
     @PostMapping("/api/fast-link/admin/v1/update/group")
     Result<Void> updateShortLinkGroup(@RequestBody ShortLinkGroupUpdateReqDTO requestParam) {
         return shortLinkRemoteService.updateShortLinkGroup(requestParam);
+    }
+
+    @PostMapping("/api/fast-link/admin/v1/update/short-link")
+    Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
+        return shortLinkRemoteService.updateShortLink(requestParam);
     }
 }

@@ -5,6 +5,7 @@ import com.progsail.fastlink.admin.common.convention.result.Result;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
@@ -28,4 +29,6 @@ public interface ShortLinkRemoteService {
     Result<List<ShortLinkGroupCountRespDTO>> groupShortLinkCount(List<String> requestParam);
 
     Result<Void> updateShortLinkGroup(ShortLinkGroupUpdateReqDTO requestParam);
+
+    Result<Void> updateShortLink(ShortLinkUpdateReqDTO requestParam);
 }

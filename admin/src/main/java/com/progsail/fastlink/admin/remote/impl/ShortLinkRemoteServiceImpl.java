@@ -9,6 +9,7 @@ import com.progsail.fastlink.admin.remote.ShortLinkRemoteService;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
@@ -91,6 +92,18 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService {
 //                .addHeaders(headers)
 //                .form(requestMap)
 //                .execute().body();
+        return JSON.parseObject(resultPageStr, new TypeReference<>() {
+        });
+    }
+
+    @Override
+    public Result<Void> updateShortLink(ShortLinkUpdateReqDTO requestParam) {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<ShortLinkUpdateReqDTO> r = new HttpEntity<>(requestParam, requestHeaders);
+        String url = "http://127.0.0.1:8001/api/fast-link/project/v1/update/short-link";
+        String resultPageStr = restTemplate.postForObject(url, r, String.class);
         return JSON.parseObject(resultPageStr, new TypeReference<>() {
         });
     }
