@@ -8,12 +8,12 @@ package com.progsail.fastlink.project.common.constant;
  */
 public class RedisCacheConstant {
     /**
-     * 用户注册分布式锁
+     * 短链接跳转前缀 Key
      */
-    public static final String LOCK_USER_REGISTER_KEY = "fast-link:lock_user-register:";
+    public static final String GOTO_SHORT_LINK_KEY = "short-link:goto:%s";
 
     /**
-     * 用户登录缓存标识
+     * 短链接跳转锁前缀 Key
      */
-    public static final String USER_LOGIN_KEY = "fast-link:login:";
+    public static final String LOCK_GOTO_SHORT_LINK_KEY = "short-link:lock:goto:%s";
 }
