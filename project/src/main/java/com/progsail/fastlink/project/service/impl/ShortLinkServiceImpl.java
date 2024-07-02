@@ -43,9 +43,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
-import static com.progsail.fastlink.project.common.constant.RedisCacheConstant.GOTO_SHORT_LINK_KEY;
-import static com.progsail.fastlink.project.common.constant.RedisCacheConstant.LOCK_GOTO_SHORT_LINK_KEY;
+import static com.progsail.fastlink.project.common.constant.RedisCacheConstant.*;
 
 /**
  * @author yangfan
@@ -116,7 +116,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 throw new ServiceException("短链接频繁生成，请稍后再试");
             }
             String originUrl = requestParam.getOriginUrl();
-            originUrl += UUID.randomUUID().toString();
+            originUrl += UUID.randomUUID().toString();//减少冲突概率
             shortUrl = HashUtil.hashToBase62(originUrl);
             if(!shortLinkCreateCachePenetrationBloomFilter.contains(requestParam.getDomain() + "/" + shortUrl)){
                 break;
@@ -228,14 +228,34 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         String serverName = request.getServerName();
         String fullShortUrl = serverName + "/" + shortUrl;
 
+        //查该短链接是否已经缓存对应的原始链接
         String originLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
         if(StrUtil.isNotBlank(originLink)) {
             ((HttpServletResponse) response).sendRedirect(originLink);
         }
 
+        //缓存穿透：查布隆过滤器，若不存在，说明该短链接不存在于数据库，直接返回
+        boolean contains = shortLinkCreateCachePenetrationBloomFilter.contains(fullShortUrl);
+        if(!contains){
+            return;
+        }
+
+        //缓存穿透：针对与布隆过滤器的误判，这里查是否有对应的空值，若有对应空值说明不存在
+        String gotoIsNullShortLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
+        if (StrUtil.isNotBlank(gotoIsNullShortLink)) {
+            return;
+        }
+
+        //缓存击穿：双重判定锁
         RLock lock = redissonClient.getLock(String.format(LOCK_GOTO_SHORT_LINK_KEY, fullShortUrl));
         lock.lock();
         try {
+            //缓存穿透：先查缓存，针对与布隆过滤器的误判，这里查是否有对应的空值，若有对应空值说明不存在
+            gotoIsNullShortLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
+            if (StrUtil.isNotBlank(gotoIsNullShortLink)) {
+                return;
+            }
+            //缓存击穿：先查缓存
             originLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
             if(StrUtil.isNotBlank(originLink)) {
                 ((HttpServletResponse) response).sendRedirect(originLink);
@@ -245,7 +265,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
             ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(shortLinkGotoQueryWrapper);
             if(shortLinkGotoDO == null) {
-                // TODO: 这里要做封控
+                // 短链接不存在，缓存对应空值
+                stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30, TimeUnit.MINUTES);
                 return;
             }
             LambdaQueryWrapper<ShortLinkDO> shortLinkDOQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
