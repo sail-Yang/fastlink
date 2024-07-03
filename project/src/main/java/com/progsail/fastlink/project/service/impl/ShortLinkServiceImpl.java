@@ -26,6 +26,7 @@ import com.progsail.fastlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkPageRespDTO;
 import com.progsail.fastlink.project.service.ShortLinkService;
 import com.progsail.fastlink.project.util.HashUtil;
+import com.progsail.fastlink.project.util.LinkUtil;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -99,6 +100,12 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             log.warn("短链接 {} 重复入库", shortLinkDO.getFullShortUrl());
             throw new ServiceException("短链接重复入库");
         }
+        //缓存预热
+        stringRedisTemplate.opsForValue().set(
+                String.format(GOTO_SHORT_LINK_KEY, fullShortUrl),
+                requestParam.getOriginUrl(),
+                LinkUtil.getLinkCacheValidTime(requestParam.getValidDate()), TimeUnit.MILLISECONDS
+        );
         shortLinkCreateCachePenetrationBloomFilter.add(shortLinkDO.getFullShortUrl());
         return ShortLinkCreateRespDTO.builder()
                 .fullShortUrl("http://" + shortLinkDO.getFullShortUrl())
