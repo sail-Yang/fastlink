@@ -11,3 +11,7 @@ spring:
       host: 10.135.37.134
       port: 6379
       password: yfyfyf
+  mvc:
+    view:
+      prefix: /templates/
+      suffix: .html
