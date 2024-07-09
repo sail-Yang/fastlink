@@ -322,6 +322,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                         TimeUnit.MILLISECONDS
                 );
                 ((HttpServletResponse) response).sendRedirect(shortLinkDO.getOriginUrl());
+            }else{
+                ((HttpServletResponse) response).sendRedirect("/page/nofound");
+                return;
             }
         } finally {
             lock.unlock();
