@@ -26,4 +26,15 @@ public class LinkUtil {
                 .orElse(DEFAULT_CACHE_VALID_TIME);
     }
 
+    /**
+     * 检查url的协议
+     * @param url
+     * @return
+     */
+    public static boolean isHttpOrHttps(String url) {
+        String lowerCaseStr = url.toLowerCase();
+        return lowerCaseStr.startsWith("http:") || lowerCaseStr.startsWith("https:");
+    }
+
+
 }

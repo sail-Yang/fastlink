@@ -3,6 +3,7 @@ package com.progsail.fastlink.project.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -33,6 +34,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -41,6 +45,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +55,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.progsail.fastlink.project.common.constant.RedisCacheConstant.*;
+import static com.progsail.fastlink.project.util.LinkUtil.isHttpOrHttps;
 
 /**
  * @author yangfan
@@ -68,6 +76,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     private final StringRedisTemplate stringRedisTemplate;
 
+    //jsoup连接网页超时时间
+    private final int ConnectTimeOutMillis = 5000;
+
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
         String shortLinkSuffix = generateSuffix(requestParam);
@@ -83,7 +94,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .validDateType(requestParam.getValidDateType())
                 .validDate(requestParam.getValidDate())
                 .describe(requestParam.getDescribe())
-                .favicon(requestParam.getFavicon())
+                .favicon(getFaviconURL(requestParam.getOriginUrl()))
                 .shortUrl(shortLinkSuffix)
                 .enableStatus(0)
                 .clickNum(0)
@@ -109,7 +120,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             stringRedisTemplate.opsForValue().set(
                     String.format(GOTO_SHORT_LINK_KEY, fullShortUrl),
                     requestParam.getOriginUrl(),
-                    leftValidTime
+                    leftValidTime,
+                    TimeUnit.MILLISECONDS
             );
         }else{
             //缓存空值
@@ -314,5 +326,42 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         } finally {
             lock.unlock();
         }
+    }
+
+    /**
+     * 获取网站图标链接
+     * @param originURL
+     * @return
+     */
+    private String getFaviconURL(String originURL) {
+        originURL = StrUtil.trimToEmpty(originURL);
+        //不携带协议就拼接
+        if(!isHttpOrHttps(originURL)){
+            originURL = StrUtil.format("https://{}",originURL);
+        }
+        URL url = null;
+        try {
+            url = new URL(originURL);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+        String hostUrl = url.getProtocol().concat("://").concat(url.getHost());
+        Document document = null;
+        try {
+            document = Jsoup.connect(hostUrl).timeout(ConnectTimeOutMillis).get();
+        } catch (IOException e) {
+            return null;
+        }
+        // 筛选包含favicon图标的link标签
+        Elements title = document.select("link[type=image/x-icon]");
+        title = ObjectUtil.isEmpty(title) ? document.select("link[rel$=icon]") : title;
+        // 获取favicon路径
+        String href = title.attr("href");
+        // 假设获取到的favicon路径已经包含了域名，则直接返回
+        if (isHttpOrHttps(href) && StrUtil.containsAny(href, "favicon")) {
+            return href;
+        }
+        // 拼接favicon的访问链接
+        return StrUtil.format("{}/{}", hostUrl, StrUtil.removePrefix(href, "/"));
     }
 }
