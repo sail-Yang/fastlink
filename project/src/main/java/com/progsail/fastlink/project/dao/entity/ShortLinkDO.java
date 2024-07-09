@@ -25,7 +25,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("t_link")
-public class ShortLinkDO extends BaseDO implements Serializable {
+public class  ShortLinkDO extends BaseDO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 2L;
