@@ -1,7 +1,10 @@
 package com.progsail.fastlink.admin.remote;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.admin.common.convention.result.Result;
 import com.progsail.fastlink.admin.dto.req.RecycleBinSaveReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.RecycleBinPageReqDTO;
+import com.progsail.fastlink.admin.remote.dto.resp.RecycleBinPageRespDTO;
 
 /**
  * @author yangfan
@@ -11,4 +14,6 @@ import com.progsail.fastlink.admin.dto.req.RecycleBinSaveReqDTO;
  */
 public interface RecycleBinRemoteService {
     Result<Void> saveShortLink(RecycleBinSaveReqDTO requestParam);
+
+    Result<IPage<RecycleBinPageRespDTO>> pageRecycleBin(RecycleBinPageReqDTO requestParam);
 }

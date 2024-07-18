@@ -1,8 +1,11 @@
 package com.progsail.fastlink.project.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
+import com.progsail.fastlink.project.dto.req.RecycleBinPageReqDTO;
 import com.progsail.fastlink.project.dto.req.RecycleBinSaveReqDTO;
+import com.progsail.fastlink.project.dto.resp.RecycleBinPageRespDTO;
 
 /**
  * @author yangfan
@@ -12,4 +15,6 @@ import com.progsail.fastlink.project.dto.req.RecycleBinSaveReqDTO;
  */
 public interface RecycleBinService extends IService<ShortLinkDO> {
     void saveShortLink(RecycleBinSaveReqDTO requestParam);
+
+    IPage<RecycleBinPageRespDTO> pageRecycleBin(RecycleBinPageReqDTO requestParam);
 }

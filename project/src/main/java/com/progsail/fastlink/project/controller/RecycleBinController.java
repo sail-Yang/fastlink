@@ -1,10 +1,14 @@
 package com.progsail.fastlink.project.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.project.common.convention.result.Result;
 import com.progsail.fastlink.project.common.convention.result.Results;
+import com.progsail.fastlink.project.dto.req.RecycleBinPageReqDTO;
 import com.progsail.fastlink.project.dto.req.RecycleBinSaveReqDTO;
+import com.progsail.fastlink.project.dto.resp.RecycleBinPageRespDTO;
 import com.progsail.fastlink.project.service.RecycleBinService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,5 +28,10 @@ public class RecycleBinController {
     Result<Void> saveShortLink(@RequestBody RecycleBinSaveReqDTO requestParam) {
         recycleBinService.saveShortLink(requestParam);
         return Results.success();
+    }
+
+    @GetMapping("/api/fast-link/project/v1/recycle-bin/page")
+    Result<IPage<RecycleBinPageRespDTO>> getShortLinkPage(RecycleBinPageReqDTO requestParam) {
+        return Results.success(recycleBinService.pageRecycleBin(requestParam));
     }
 }
