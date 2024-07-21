@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.project.common.convention.result.Result;
 import com.progsail.fastlink.project.common.convention.result.Results;
 import com.progsail.fastlink.project.dto.req.RecycleBinPageReqDTO;
+import com.progsail.fastlink.project.dto.req.RecycleBinRecoverReqDTO;
 import com.progsail.fastlink.project.dto.req.RecycleBinSaveReqDTO;
 import com.progsail.fastlink.project.dto.resp.RecycleBinPageRespDTO;
 import com.progsail.fastlink.project.service.RecycleBinService;
@@ -33,5 +34,11 @@ public class RecycleBinController {
     @GetMapping("/api/fast-link/project/v1/recycle-bin/page")
     Result<IPage<RecycleBinPageRespDTO>> getShortLinkPage(RecycleBinPageReqDTO requestParam) {
         return Results.success(recycleBinService.pageRecycleBin(requestParam));
+    }
+
+    @PostMapping("/api/fast-link/project/v1/recycle-bin/recover")
+    Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam) {
+        recycleBinService.recoverRecycleBin(requestParam);
+        return Results.success();
     }
 }

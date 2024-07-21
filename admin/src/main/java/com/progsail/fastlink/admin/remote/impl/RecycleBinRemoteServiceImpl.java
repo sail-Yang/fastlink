@@ -15,6 +15,7 @@ import com.progsail.fastlink.admin.dao.mapper.GroupMapper;
 import com.progsail.fastlink.admin.dto.req.RecycleBinSaveReqDTO;
 import com.progsail.fastlink.admin.remote.RecycleBinRemoteService;
 import com.progsail.fastlink.admin.remote.dto.req.RecycleBinPageReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.RecycleBinRecoverReqDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.RecycleBinPageRespDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +70,19 @@ public class RecycleBinRemoteServiceImpl implements RecycleBinRemoteService {
         requestMap.put("current", requestParam.getCurrent());
         requestMap.put("size", requestParam.getSize());
         String resultPageStr = HttpUtil.get("http://127.0.0.1:8001/api/fast-link/project/v1/recycle-bin/page",requestMap);
+        return JSON.parseObject(resultPageStr, new TypeReference<>() {
+        });
+    }
+
+    @Override
+    public Result<Void> recoverRecycleBin(RecycleBinRecoverReqDTO requestParam) {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<RecycleBinRecoverReqDTO> r = new HttpEntity<>(requestParam, requestHeaders);
+
+        String url = "http://127.0.0.1:8001/api/fast-link/project/v1/recycle-bin/recover";
+        String resultPageStr = restTemplate.postForObject(url, r, String.class);
         return JSON.parseObject(resultPageStr, new TypeReference<>() {
         });
     }
