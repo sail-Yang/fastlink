@@ -10,6 +10,7 @@ import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
 import com.progsail.fastlink.project.dao.mapper.ShortLinkMapper;
 import com.progsail.fastlink.project.dto.req.RecycleBinPageReqDTO;
 import com.progsail.fastlink.project.dto.req.RecycleBinRecoverReqDTO;
+import com.progsail.fastlink.project.dto.req.RecycleBinRemoveReqDTO;
 import com.progsail.fastlink.project.dto.req.RecycleBinSaveReqDTO;
 import com.progsail.fastlink.project.dto.resp.RecycleBinPageRespDTO;
 import com.progsail.fastlink.project.service.RecycleBinService;
@@ -75,5 +76,15 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
                 .build();
         baseMapper.update(shortLinkDO, updateWrapper);
         stringRedisTemplate.delete(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, requestParam.getFullShortUrl()));
+    }
+
+    @Override
+    public void removeRecycleBin(RecycleBinRemoveReqDTO requestParam) {
+        LambdaUpdateWrapper<ShortLinkDO> updateWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, requestParam.getGid())
+                .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
+                .eq(ShortLinkDO::getEnableStatus, 1)
+                .eq(ShortLinkDO::getDelFlag, 0);
+        baseMapper.delete(updateWrapper);
     }
 }

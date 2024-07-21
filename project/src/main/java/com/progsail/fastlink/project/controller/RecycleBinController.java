@@ -5,6 +5,7 @@ import com.progsail.fastlink.project.common.convention.result.Result;
 import com.progsail.fastlink.project.common.convention.result.Results;
 import com.progsail.fastlink.project.dto.req.RecycleBinPageReqDTO;
 import com.progsail.fastlink.project.dto.req.RecycleBinRecoverReqDTO;
+import com.progsail.fastlink.project.dto.req.RecycleBinRemoveReqDTO;
 import com.progsail.fastlink.project.dto.req.RecycleBinSaveReqDTO;
 import com.progsail.fastlink.project.dto.resp.RecycleBinPageRespDTO;
 import com.progsail.fastlink.project.service.RecycleBinService;
@@ -39,6 +40,12 @@ public class RecycleBinController {
     @PostMapping("/api/fast-link/project/v1/recycle-bin/recover")
     Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam) {
         recycleBinService.recoverRecycleBin(requestParam);
+        return Results.success();
+    }
+
+    @PostMapping("/api/fast-link/project/v1/recycle-bin/remove")
+    Result<Void> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam) {
+        recycleBinService.removeRecycleBin(requestParam);
         return Results.success();
     }
 }

@@ -7,6 +7,7 @@ import com.progsail.fastlink.admin.dto.req.RecycleBinSaveReqDTO;
 import com.progsail.fastlink.admin.remote.RecycleBinRemoteService;
 import com.progsail.fastlink.admin.remote.dto.req.RecycleBinPageReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.RecycleBinRecoverReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.RecycleBinRemoveReqDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.RecycleBinPageRespDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +43,12 @@ public class RecycleBinController {
     @PostMapping("/api/fast-link/admin/v1/recycle-bin/recover")
     public Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam) {
         recycleBinRemoteService.recoverRecycleBin(requestParam);
+        return Results.success();
+    }
+
+    @PostMapping("/api/fast-link/admin/v1/recycle-bin/remove")
+    public Result<Void> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam) {
+        recycleBinRemoteService.removeRecycleBin(requestParam);
         return Results.success();
     }
 }

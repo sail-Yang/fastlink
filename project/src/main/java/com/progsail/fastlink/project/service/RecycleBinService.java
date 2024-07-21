@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
 import com.progsail.fastlink.project.dto.req.RecycleBinPageReqDTO;
 import com.progsail.fastlink.project.dto.req.RecycleBinRecoverReqDTO;
+import com.progsail.fastlink.project.dto.req.RecycleBinRemoveReqDTO;
 import com.progsail.fastlink.project.dto.req.RecycleBinSaveReqDTO;
 import com.progsail.fastlink.project.dto.resp.RecycleBinPageRespDTO;
 
@@ -20,4 +21,6 @@ public interface RecycleBinService extends IService<ShortLinkDO> {
     IPage<RecycleBinPageRespDTO> pageRecycleBin(RecycleBinPageReqDTO requestParam);
 
     void recoverRecycleBin(RecycleBinRecoverReqDTO requestParam);
+
+    void removeRecycleBin(RecycleBinRemoveReqDTO requestParam);
 }

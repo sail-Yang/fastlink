@@ -5,6 +5,7 @@ import com.progsail.fastlink.admin.common.convention.result.Result;
 import com.progsail.fastlink.admin.dto.req.RecycleBinSaveReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.RecycleBinPageReqDTO;
 import com.progsail.fastlink.admin.remote.dto.req.RecycleBinRecoverReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.RecycleBinRemoveReqDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.RecycleBinPageRespDTO;
 
 /**
@@ -19,4 +20,6 @@ public interface RecycleBinRemoteService {
     Result<IPage<RecycleBinPageRespDTO>> pageRecycleBin(RecycleBinPageReqDTO requestParam);
 
     Result<Void> recoverRecycleBin(RecycleBinRecoverReqDTO requestParam);
+
+    Result<Void> removeRecycleBin(RecycleBinRemoveReqDTO requestParam);
 }
