@@ -112,20 +112,31 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             log.warn("短链接 {} 重复入库", shortLinkDO.getFullShortUrl());
             throw new ServiceException("短链接重复入库");
         }
-        //计算短链接有效期
-        long leftValidTime = LinkUtil.getLinkCacheValidTime(requestParam.getValidDate());
-        //若短链接有效期没过
-        if(leftValidTime > 0){
-            //缓存预热
+        // 若短链接永久有效
+        if(shortLinkDO.getValidDateType() == 0){
+            //缓存预热半小时
             stringRedisTemplate.opsForValue().set(
                     String.format(GOTO_SHORT_LINK_KEY, fullShortUrl),
                     requestParam.getOriginUrl(),
-                    leftValidTime,
-                    TimeUnit.MILLISECONDS
+                    30,
+                    TimeUnit.MINUTES
             );
-        }else{
-            //缓存空值
-            stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30, TimeUnit.MINUTES);
+        }else{ // 短链接存在有效期
+            //计算短链接有效期
+            long leftValidTime = LinkUtil.getLinkCacheValidTime(requestParam.getValidDate());
+            //若短链接有效期没过
+            if(leftValidTime > 0){
+                //缓存预热
+                stringRedisTemplate.opsForValue().set(
+                        String.format(GOTO_SHORT_LINK_KEY, fullShortUrl),
+                        requestParam.getOriginUrl(),
+                        leftValidTime,
+                        TimeUnit.MILLISECONDS
+                );
+            }else{
+                //缓存空值
+                stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30, TimeUnit.MINUTES);
+            }
         }
         shortLinkCreateCachePenetrationBloomFilter.add(shortLinkDO.getFullShortUrl());
         return ShortLinkCreateRespDTO.builder()
