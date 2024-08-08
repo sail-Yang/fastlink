@@ -93,6 +93,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     private final ShortLinkAccessLogMapper shortLinkAccessLogMapper;
 
+    private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
+
     private final StringRedisTemplate stringRedisTemplate;
 
     //jsoup连接网页超时时间
@@ -294,9 +296,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         String originLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
         if(StrUtil.isNotBlank(originLink)) {
             shortLinkAccessStats(fullShortUrl, null, request, response);
-            shortLinkLocaleStats(fullShortUrl, null, request, response);
-            shortLinkOsStats(fullShortUrl, null, request, response);
-            shortLinkBrowserStats(fullShortUrl, null, request, response);
             ((HttpServletResponse) response).sendRedirect(originLink);
             return;
         }
@@ -329,9 +328,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             originLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
             if(StrUtil.isNotBlank(originLink)) {
                 shortLinkAccessStats(fullShortUrl, null, request, response);
-                shortLinkLocaleStats(fullShortUrl, null, request, response);
-                shortLinkOsStats(fullShortUrl, null, request, response);
-                shortLinkBrowserStats(fullShortUrl, null, request, response);
                 ((HttpServletResponse) response).sendRedirect(originLink);
                 return;
             }
@@ -364,9 +360,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                         TimeUnit.MILLISECONDS
                 );
                 shortLinkAccessStats(fullShortUrl, shortLinkDO.getGid(), request, response);
-                shortLinkLocaleStats(fullShortUrl, shortLinkDO.getGid(), request, response);
-                shortLinkOsStats(fullShortUrl, shortLinkDO.getGid(), request, response);
-                shortLinkBrowserStats(fullShortUrl, shortLinkDO.getGid(), request, response);
                 ((HttpServletResponse) response).sendRedirect(shortLinkDO.getOriginUrl());
             }else{
                 ((HttpServletResponse) response).sendRedirect("/page/nofound");
@@ -451,6 +444,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .browser(AccessUtil.getBrowser((HttpServletRequest) request))
                     .build();
             shortLinkAccessLogMapper.insert(linkAccessLogDO);
+            //其他监控类型记录
+            shortLinkLocaleStats(fullShortUrl, gid, request, response);
+            shortLinkOsStats(fullShortUrl, gid, request, response);
+            shortLinkBrowserStats(fullShortUrl, gid, request, response);
+            shortLinkDeviceStats(fullShortUrl, gid, request, response);
         } catch (Throwable ex) {
             log.error("短链接访问量统计异常", ex);
         }
@@ -568,6 +566,38 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .date(new Date())
                     .build();
             shortLinkBrowserStatsMapper.shortLinkBrowserState(linkBrowserStatsDO);
+        }catch (Throwable ex) {
+            log.error("短链接浏览器访问量统计异常", ex);
+        }
+
+    }
+
+    /**
+     * 访问设备统计
+     * @param fullShortUrl
+     * @param gid
+     * @param request
+     * @param response
+     */
+    private void shortLinkDeviceStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
+        // 浏览器统计
+        String device = AccessUtil.getDevice((HttpServletRequest) request);
+        try {
+            if (StrUtil.isBlank(gid)) {
+                LambdaQueryWrapper<ShortLinkGotoDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDO.class)
+                        .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
+                ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(queryWrapper);
+                gid = shortLinkGotoDO.getGid();
+            }
+
+            ShortLinkDeviceStatsDO linkDeviceStatsDO = ShortLinkDeviceStatsDO.builder()
+                    .device(device)
+                    .cnt(1)
+                    .fullShortUrl(fullShortUrl)
+                    .gid(gid)
+                    .date(new Date())
+                    .build();
+            shortLinkDeviceStatsMapper.shortLinkDeviceState(linkDeviceStatsDO);
         }catch (Throwable ex) {
             log.error("短链接浏览器访问量统计异常", ex);
         }
