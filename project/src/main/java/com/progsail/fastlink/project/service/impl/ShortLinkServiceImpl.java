@@ -95,6 +95,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
 
+    private final ShortLinkNetworkStatsMapper shortLinkNetworkStatsMapper;
+
     private final StringRedisTemplate stringRedisTemplate;
 
     //jsoup连接网页超时时间
@@ -449,6 +451,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             shortLinkOsStats(fullShortUrl, gid, request, response);
             shortLinkBrowserStats(fullShortUrl, gid, request, response);
             shortLinkDeviceStats(fullShortUrl, gid, request, response);
+            shortLinkNetworkStats(fullShortUrl, gid, request, response);
         } catch (Throwable ex) {
             log.error("短链接访问量统计异常", ex);
         }
@@ -599,7 +602,39 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .build();
             shortLinkDeviceStatsMapper.shortLinkDeviceState(linkDeviceStatsDO);
         }catch (Throwable ex) {
-            log.error("短链接浏览器访问量统计异常", ex);
+            log.error("短链接访问设备访问量统计异常", ex);
+        }
+
+    }
+
+    /**
+     * 访问网络统计
+     * @param fullShortUrl
+     * @param gid
+     * @param request
+     * @param response
+     */
+    private void shortLinkNetworkStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
+        // 访问网络统计
+        String network = AccessUtil.getNetwork((HttpServletRequest) request);
+        try {
+            if (StrUtil.isBlank(gid)) {
+                LambdaQueryWrapper<ShortLinkGotoDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDO.class)
+                        .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
+                ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(queryWrapper);
+                gid = shortLinkGotoDO.getGid();
+            }
+
+            ShortLinkNetworkStatsDO linkNetworkStatsDO = ShortLinkNetworkStatsDO.builder()
+                    .network(network)
+                    .cnt(1)
+                    .fullShortUrl(fullShortUrl)
+                    .gid(gid)
+                    .date(new Date())
+                    .build();
+            shortLinkNetworkStatsMapper.shortLinkNetworkState(linkNetworkStatsDO);
+        }catch (Throwable ex) {
+            log.error("短链接访问网络访问量统计异常", ex);
         }
 
     }
