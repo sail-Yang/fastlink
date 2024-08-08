@@ -88,6 +88,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
 
+    private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
+
     private final StringRedisTemplate stringRedisTemplate;
 
     //jsoup连接网页超时时间
@@ -291,6 +293,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             shortLinkAccessStats(fullShortUrl, null, request, response);
             shortLinkLocaleStats(fullShortUrl, null, request, response);
             shortLinkOsStats(fullShortUrl, null, request, response);
+            shortLinkBrowserStats(fullShortUrl, null, request, response);
             ((HttpServletResponse) response).sendRedirect(originLink);
             return;
         }
@@ -325,6 +328,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 shortLinkAccessStats(fullShortUrl, null, request, response);
                 shortLinkLocaleStats(fullShortUrl, null, request, response);
                 shortLinkOsStats(fullShortUrl, null, request, response);
+                shortLinkBrowserStats(fullShortUrl, null, request, response);
                 ((HttpServletResponse) response).sendRedirect(originLink);
                 return;
             }
@@ -358,7 +362,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 );
                 shortLinkAccessStats(fullShortUrl, shortLinkDO.getGid(), request, response);
                 shortLinkLocaleStats(fullShortUrl, shortLinkDO.getGid(), request, response);
-                shortLinkOsStats(fullShortUrl, null, request, response);
+                shortLinkOsStats(fullShortUrl, shortLinkDO.getGid(), request, response);
+                shortLinkBrowserStats(fullShortUrl, shortLinkDO.getGid(), request, response);
                 ((HttpServletResponse) response).sendRedirect(shortLinkDO.getOriginUrl());
             }else{
                 ((HttpServletResponse) response).sendRedirect("/page/nofound");
@@ -515,6 +520,41 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             shortLinkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
         }catch (Throwable ex) {
             log.error("短链接操作系统访问量统计异常", ex);
+        }
+
+    }
+
+    /**
+     * 操作系统统计
+     * @param fullShortUrl
+     * @param gid
+     * @param request
+     * @param response
+     */
+    private void shortLinkBrowserStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
+        // 浏览器统计
+        String browser = AccessUtil.getBrowser((HttpServletRequest) request);
+        if(UNKNOWN.equalsIgnoreCase(browser)){
+            return;
+        }
+        try {
+            if (StrUtil.isBlank(gid)) {
+                LambdaQueryWrapper<ShortLinkGotoDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDO.class)
+                        .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
+                ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(queryWrapper);
+                gid = shortLinkGotoDO.getGid();
+            }
+
+            ShortLinkBrowserStatsDO linkBrowserStatsDO = ShortLinkBrowserStatsDO.builder()
+                    .browser(browser)
+                    .cnt(1)
+                    .fullShortUrl(fullShortUrl)
+                    .gid(gid)
+                    .date(new Date())
+                    .build();
+            shortLinkBrowserStatsMapper.shortLinkBrowserState(linkBrowserStatsDO);
+        }catch (Throwable ex) {
+            log.error("短链接浏览器访问量统计异常", ex);
         }
 
     }

@@ -1,5 +1,8 @@
 package com.progsail.fastlink.project.util;
 
+import cn.hutool.core.util.StrUtil;
+import eu.bitwalker.useragentutils.Browser;
+import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.servlet.http.HttpServletRequest;
 
 import static com.progsail.fastlink.project.common.constant.ShortLinkConstant.UNKNOWN;
@@ -50,6 +53,17 @@ public class AccessUtil {
             return "iOS";
         } else {
             return UNKNOWN;
+        }
+    }
+
+    public static String getBrowser(HttpServletRequest request) {
+        String userAgent = request.getHeader("User-Agent");
+        UserAgent ua = UserAgent.parseUserAgentString(userAgent);
+        Browser browser = ua.getBrowser();
+        if(StrUtil.isBlank(browser.getName())){
+            return UNKNOWN;
+        }else{
+            return browser.getName();
         }
     }
 }
