@@ -59,6 +59,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.progsail.fastlink.project.common.constant.RedisCacheConstant.*;
 import static com.progsail.fastlink.project.common.constant.ShortLinkConstant.AMAP_REMOTE_URL;
@@ -89,6 +90,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
 
     private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
+
+    private final ShortLinkAccessLogMapper shortLinkAccessLogMapper;
 
     private final StringRedisTemplate stringRedisTemplate;
 
@@ -385,16 +388,17 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         AtomicBoolean uvFirstFlag = new AtomicBoolean();
         AtomicBoolean uipFirstFlag = new AtomicBoolean();
         Cookie[] cookies = ((HttpServletRequest) request).getCookies();
+        AtomicReference<String> uv = new AtomicReference<>();
         try {
             Runnable addResponseCookieTask = () -> {
-                String uv = UUID.fastUUID().toString();
-                Cookie uvCookie = new Cookie("uv", uv);
+                uv.set(UUID.fastUUID().toString());
+                Cookie uvCookie = new Cookie("uv", uv.get());
                 uvCookie.setMaxAge(60 * 60 * 24 * 30);
                 //不添加path就会对整个域名有效
                 uvCookie.setPath(StrUtil.sub(fullShortUrl, fullShortUrl.indexOf("/"), fullShortUrl.length()));
                 ((HttpServletResponse) response).addCookie(uvCookie);
                 uvFirstFlag.set(Boolean.TRUE);
-                stringRedisTemplate.opsForSet().add("short-link:stats:uv:" + fullShortUrl, uv);
+                stringRedisTemplate.opsForSet().add("short-link:stats:uv:" + fullShortUrl, uv.get());
             };
             if (ArrayUtil.isNotEmpty(cookies)) {
                 Arrays.stream(cookies)
@@ -402,6 +406,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                         .findFirst()
                         .map(Cookie::getValue)
                         .ifPresentOrElse(each -> {
+                            uv.set(each);
                             Long added = stringRedisTemplate.opsForSet().add("short-link:stats:uv:" + fullShortUrl, each);
                             uvFirstFlag.set(added != null && added > 0L);
                         }, addResponseCookieTask);
@@ -436,6 +441,16 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .date(new Date())
                     .build();
             shortLinkAccessStatsMapper.shortLinkAccessStats(linkAccessStatsDO);
+            //插入访问记录
+            ShortLinkAccessLogDO linkAccessLogDO = ShortLinkAccessLogDO.builder()
+                    .fullShortUrl(fullShortUrl)
+                    .gid(gid)
+                    .ip(ip)
+                    .user(uv.get())
+                    .os(AccessUtil.getOs((HttpServletRequest) request))
+                    .browser(AccessUtil.getBrowser((HttpServletRequest) request))
+                    .build();
+            shortLinkAccessLogMapper.insert(linkAccessLogDO);
         } catch (Throwable ex) {
             log.error("短链接访问量统计异常", ex);
         }
