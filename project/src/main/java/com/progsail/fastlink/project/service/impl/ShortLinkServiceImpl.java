@@ -20,14 +20,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.progsail.fastlink.project.common.convention.exception.ClientException;
 import com.progsail.fastlink.project.common.convention.exception.ServiceException;
 import com.progsail.fastlink.project.common.enums.VailDateTypeEnum;
-import com.progsail.fastlink.project.dao.entity.ShortLinkAccessStatsDO;
-import com.progsail.fastlink.project.dao.entity.ShortLinkDO;
-import com.progsail.fastlink.project.dao.entity.ShortLinkGotoDO;
-import com.progsail.fastlink.project.dao.entity.ShortLinkLocaleStatsDO;
-import com.progsail.fastlink.project.dao.mapper.ShortLinkAccessStatsMapper;
-import com.progsail.fastlink.project.dao.mapper.ShortLinkGotoMapper;
-import com.progsail.fastlink.project.dao.mapper.ShortLinkLocaleStatsMapper;
-import com.progsail.fastlink.project.dao.mapper.ShortLinkMapper;
+import com.progsail.fastlink.project.dao.entity.*;
+import com.progsail.fastlink.project.dao.mapper.*;
 import com.progsail.fastlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkPageReqDTO;
@@ -91,6 +85,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkAccessStatsMapper shortLinkAccessStatsMapper;
 
     private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
+
+    private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
 
     private final StringRedisTemplate stringRedisTemplate;
 
@@ -294,6 +290,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         if(StrUtil.isNotBlank(originLink)) {
             shortLinkAccessStats(fullShortUrl, null, request, response);
             shortLinkLocaleStats(fullShortUrl, null, request, response);
+            shortLinkOsStats(fullShortUrl, null, request, response);
             ((HttpServletResponse) response).sendRedirect(originLink);
             return;
         }
@@ -327,6 +324,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             if(StrUtil.isNotBlank(originLink)) {
                 shortLinkAccessStats(fullShortUrl, null, request, response);
                 shortLinkLocaleStats(fullShortUrl, null, request, response);
+                shortLinkOsStats(fullShortUrl, null, request, response);
                 ((HttpServletResponse) response).sendRedirect(originLink);
                 return;
             }
@@ -360,6 +358,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 );
                 shortLinkAccessStats(fullShortUrl, shortLinkDO.getGid(), request, response);
                 shortLinkLocaleStats(fullShortUrl, shortLinkDO.getGid(), request, response);
+                shortLinkOsStats(fullShortUrl, null, request, response);
                 ((HttpServletResponse) response).sendRedirect(shortLinkDO.getOriginUrl());
             }else{
                 ((HttpServletResponse) response).sendRedirect("/page/nofound");
@@ -481,6 +480,41 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             }
         }catch (Throwable ex) {
             log.error("短链接地区访问量统计异常", ex);
+        }
+
+    }
+
+    /**
+     * 操作系统统计
+     * @param fullShortUrl
+     * @param gid
+     * @param request
+     * @param response
+     */
+    private void shortLinkOsStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
+        // os统计
+        String os = AccessUtil.getOs((HttpServletRequest) request);
+        if(UNKNOWN.equalsIgnoreCase(os)){
+            return;
+        }
+        try {
+            if (StrUtil.isBlank(gid)) {
+                LambdaQueryWrapper<ShortLinkGotoDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDO.class)
+                        .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
+                ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(queryWrapper);
+                gid = shortLinkGotoDO.getGid();
+            }
+
+            ShortLinkOsStatsDO linkOsStatsDO = ShortLinkOsStatsDO.builder()
+                    .os(os)
+                    .cnt(1)
+                    .fullShortUrl(fullShortUrl)
+                    .gid(gid)
+                    .date(new Date())
+                    .build();
+            shortLinkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
+        }catch (Throwable ex) {
+            log.error("短链接操作系统访问量统计异常", ex);
         }
 
     }
