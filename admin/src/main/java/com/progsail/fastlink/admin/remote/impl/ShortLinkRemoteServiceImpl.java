@@ -1,18 +1,17 @@
 package com.progsail.fastlink.admin.remote.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.admin.common.convention.result.Result;
 import com.progsail.fastlink.admin.remote.ShortLinkRemoteService;
-import com.progsail.fastlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
-import com.progsail.fastlink.admin.remote.dto.req.ShortLinkGroupUpdateReqDTO;
-import com.progsail.fastlink.admin.remote.dto.req.ShortLinkPageReqDTO;
-import com.progsail.fastlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.*;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
+import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkStatsRespDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -105,6 +104,13 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService {
         String url = "http://127.0.0.1:8001/api/fast-link/project/v1/update/short-link";
         String resultPageStr = restTemplate.postForObject(url, r, String.class);
         return JSON.parseObject(resultPageStr, new TypeReference<>() {
+        });
+    }
+
+    @Override
+    public Result<ShortLinkStatsRespDTO> oneShortLinkStats(ShortLinkStatsReqDTO requestParam) {
+        String resultBodyStr = HttpUtil.get("http://127.0.0.1:8001/api/fast-link/project/v1/stats", BeanUtil.beanToMap(requestParam));
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {
         });
     }
 }

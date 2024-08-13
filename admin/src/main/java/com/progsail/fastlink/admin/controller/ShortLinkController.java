@@ -3,12 +3,10 @@ package com.progsail.fastlink.admin.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.admin.common.convention.result.Result;
 import com.progsail.fastlink.admin.remote.ShortLinkRemoteService;
-import com.progsail.fastlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
-import com.progsail.fastlink.admin.remote.dto.req.ShortLinkGroupUpdateReqDTO;
-import com.progsail.fastlink.admin.remote.dto.req.ShortLinkPageReqDTO;
-import com.progsail.fastlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
+import com.progsail.fastlink.admin.remote.dto.req.*;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
+import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkStatsRespDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,5 +43,10 @@ public class ShortLinkController {
     @PostMapping("/api/fast-link/admin/v1/update/short-link")
     Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
         return shortLinkRemoteService.updateShortLink(requestParam);
+    }
+
+    @GetMapping("/api/fast-link/admin/v1/stats")
+    Result<ShortLinkStatsRespDTO> shortLinkStats(ShortLinkStatsReqDTO requestParam) {
+        return shortLinkRemoteService.oneShortLinkStats(requestParam);
     }
 }
