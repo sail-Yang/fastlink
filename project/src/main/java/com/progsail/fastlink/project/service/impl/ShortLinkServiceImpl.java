@@ -436,22 +436,25 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .date(new Date())
                     .build();
             shortLinkAccessStatsMapper.shortLinkAccessStats(linkAccessStatsDO);
+            //监控类型记录
+            String locale = shortLinkLocaleStats(fullShortUrl, gid, request, response);
+            String os = shortLinkOsStats(fullShortUrl, gid, request, response);
+            String browser =shortLinkBrowserStats(fullShortUrl, gid, request, response);
+            String device = shortLinkDeviceStats(fullShortUrl, gid, request, response);
+            String network = shortLinkNetworkStats(fullShortUrl, gid, request, response);
             //插入访问记录
             ShortLinkAccessLogDO linkAccessLogDO = ShortLinkAccessLogDO.builder()
                     .fullShortUrl(fullShortUrl)
                     .gid(gid)
                     .ip(ip)
                     .user(uv.get())
-                    .os(AccessUtil.getOs((HttpServletRequest) request))
-                    .browser(AccessUtil.getBrowser((HttpServletRequest) request))
+                    .device(device)
+                    .network(network)
+                    .locale(locale)
+                    .os(os)
+                    .browser(browser)
                     .build();
             shortLinkAccessLogMapper.insert(linkAccessLogDO);
-            //其他监控类型记录
-            shortLinkLocaleStats(fullShortUrl, gid, request, response);
-            shortLinkOsStats(fullShortUrl, gid, request, response);
-            shortLinkBrowserStats(fullShortUrl, gid, request, response);
-            shortLinkDeviceStats(fullShortUrl, gid, request, response);
-            shortLinkNetworkStats(fullShortUrl, gid, request, response);
         } catch (Throwable ex) {
             log.error("短链接访问量统计异常", ex);
         }
@@ -464,11 +467,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @param request
      * @param response
      */
-    private void shortLinkLocaleStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
+    private String shortLinkLocaleStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
         // ip统计
         String ip = AccessUtil.getIpAddr((HttpServletRequest) request);
         if(UNKNOWN.equalsIgnoreCase(ip)){
-            return;
+            throw new ClientException("ip不存在");
         }
         try {
             if (StrUtil.isBlank(gid)) {
@@ -484,9 +487,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             String localeResultStr = HttpUtil.get(AMAP_REMOTE_URL, localeParamMap);
             JSONObject localeResultObj = JSON.parseObject(localeResultStr);
             String infoCode = localeResultObj.getString("infocode");
+            boolean unknownFlag;
             if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, "10000")) {
                 String province = localeResultObj.getString("province");
-                boolean unknownFlag = StrUtil.equals(province, "[]");
+                unknownFlag = StrUtil.equals(province, "[]");
                 ShortLinkLocaleStatsDO linkLocaleStatsDO = ShortLinkLocaleStatsDO.builder()
                         .province(unknownFlag ? UNKNOWN : province)
                         .city(unknownFlag ? UNKNOWN : localeResultObj.getString("city"))
@@ -498,11 +502,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                         .date(new Date())
                         .build();
                 shortLinkLocaleStatsMapper.shortLinkLocaleState(linkLocaleStatsDO);
+                return StrUtil.join("-","中国",(unknownFlag ? UNKNOWN : province), (unknownFlag ? UNKNOWN : localeResultObj.getString("city")) );
+            }else{
+                throw new ServiceException("调用第三方API失败");
             }
         }catch (Throwable ex) {
-            log.error("短链接地区访问量统计异常", ex);
+            throw new ServiceException("短链接地区访问量统计异常");
         }
-
     }
 
     /**
@@ -512,11 +518,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @param request
      * @param response
      */
-    private void shortLinkOsStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
+    private String shortLinkOsStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
         // os统计
         String os = AccessUtil.getOs((HttpServletRequest) request);
         if(UNKNOWN.equalsIgnoreCase(os)){
-            return;
+            throw new ClientException("操作系统不存在");
         }
         try {
             if (StrUtil.isBlank(gid)) {
@@ -534,8 +540,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .date(new Date())
                     .build();
             shortLinkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
+            return os;
         }catch (Throwable ex) {
-            log.error("短链接操作系统访问量统计异常", ex);
+            throw new ServiceException("短链接操作系统访问量统计异常");
         }
 
     }
@@ -547,11 +554,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @param request
      * @param response
      */
-    private void shortLinkBrowserStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
+    private String shortLinkBrowserStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
         // 浏览器统计
         String browser = AccessUtil.getBrowser((HttpServletRequest) request);
         if(UNKNOWN.equalsIgnoreCase(browser)){
-            return;
+            throw new ClientException("浏览器不存在");
         }
         try {
             if (StrUtil.isBlank(gid)) {
@@ -569,8 +576,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .date(new Date())
                     .build();
             shortLinkBrowserStatsMapper.shortLinkBrowserState(linkBrowserStatsDO);
+            return browser;
         }catch (Throwable ex) {
-            log.error("短链接浏览器访问量统计异常", ex);
+            throw new ServiceException("短链接浏览器访问量统计异常");
         }
 
     }
@@ -582,7 +590,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @param request
      * @param response
      */
-    private void shortLinkDeviceStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
+    private String shortLinkDeviceStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
         // 浏览器统计
         String device = AccessUtil.getDevice((HttpServletRequest) request);
         try {
@@ -601,8 +609,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .date(new Date())
                     .build();
             shortLinkDeviceStatsMapper.shortLinkDeviceState(linkDeviceStatsDO);
+            return device;
         }catch (Throwable ex) {
-            log.error("短链接访问设备访问量统计异常", ex);
+            throw new ServiceException("短链接访问设备访问量统计异常");
         }
 
     }
@@ -614,7 +623,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @param request
      * @param response
      */
-    private void shortLinkNetworkStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
+    private String shortLinkNetworkStats(String fullShortUrl, String gid, ServletRequest request, ServletResponse response) {
         // 访问网络统计
         String network = AccessUtil.getNetwork((HttpServletRequest) request);
         try {
@@ -633,8 +642,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .date(new Date())
                     .build();
             shortLinkNetworkStatsMapper.shortLinkNetworkState(linkNetworkStatsDO);
+            return network;
         }catch (Throwable ex) {
-            log.error("短链接访问网络访问量统计异常", ex);
+            throw new ServiceException("短链接访问网络访问量统计异常");
         }
 
     }
