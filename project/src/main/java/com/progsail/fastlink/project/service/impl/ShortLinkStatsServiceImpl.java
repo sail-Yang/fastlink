@@ -1,6 +1,10 @@
 package com.progsail.fastlink.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateUtil;
+import com.progsail.fastlink.project.common.convention.exception.ServiceException;
 import com.progsail.fastlink.project.dao.entity.ShortLinkAccessStatsDO;
 import com.progsail.fastlink.project.dao.entity.ShortLinkDeviceStatsDO;
 import com.progsail.fastlink.project.dao.entity.ShortLinkLocaleStatsDO;
@@ -12,6 +16,8 @@ import com.progsail.fastlink.project.service.ShortLinkStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +46,45 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         /*
             基础访问详情
          */
-        List<ShortLinkAccessStatsDO> accessStats = shortLinkAccessStatsMapper.listStatsBySingleShortLink(requestParam);
+        List<ShortLinkAccessStatsDO> listedDailyStats = shortLinkAccessStatsMapper.listStatsBySingleShortLink(requestParam);
+        if (CollUtil.isEmpty(listedDailyStats)) {
+            return null;
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        List<ShortLinkStatsAccessDailyRespDTO> dailyStats = new ArrayList<>();
+        List<String> rangeDates = DateUtil.rangeToList(DateUtil.parse(requestParam.getStartDate()), DateUtil.parse(requestParam.getEndDate()), DateField.DAY_OF_MONTH).stream()
+                .map(DateUtil::formatDate)
+                .toList();
+        rangeDates.forEach(each -> listedDailyStats.stream()
+                .filter(item -> Objects.equals(each, DateUtil.formatDate(item.getDate())))
+                .findFirst()
+                .ifPresentOrElse(item -> {
+                    ShortLinkStatsAccessDailyRespDTO accessDailyRespDTO = null;
+                    try {
+                        accessDailyRespDTO = ShortLinkStatsAccessDailyRespDTO.builder()
+                                .date(dateFormat.parse(each))
+                                .pv(item.getPv())
+                                .uv(item.getUv())
+                                .uip(item.getUip())
+                                .build();
+                        dailyStats.add(accessDailyRespDTO);
+                    } catch (ParseException e) {
+                        throw new ServiceException("时间解析错误");
+                    }
+                }, () -> {
+                    ShortLinkStatsAccessDailyRespDTO accessDailyRespDTO = null;
+                    try {
+                        accessDailyRespDTO = ShortLinkStatsAccessDailyRespDTO.builder()
+                                .date(dateFormat.parse(each))
+                                .pv(0)
+                                .uv(0)
+                                .uip(0)
+                                .build();
+                        dailyStats.add(accessDailyRespDTO);
+                    } catch (ParseException e) {
+                        throw new ServiceException("时间解析错误");
+                    }
+                }));
         /*
             国内地区访问详情
          */
@@ -200,7 +244,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .build();
         uvTypeStats.add(oldUvRespDTO);
         return ShortLinkStatsRespDTO.builder()
-                .daily(BeanUtil.copyToList(accessStats, ShortLinkStatsAccessDailyRespDTO.class))
+                .daily(BeanUtil.copyToList(dailyStats, ShortLinkStatsAccessDailyRespDTO.class))
                 .localeCnStats(localeCNStats)
                 .hourStats(hourStats)
                 .topIpStats(topIpStats)
