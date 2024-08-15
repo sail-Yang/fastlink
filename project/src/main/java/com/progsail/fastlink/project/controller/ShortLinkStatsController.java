@@ -1,8 +1,11 @@
 package com.progsail.fastlink.project.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.project.common.convention.result.Result;
 import com.progsail.fastlink.project.common.convention.result.Results;
+import com.progsail.fastlink.project.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkStatsReqDTO;
+import com.progsail.fastlink.project.dto.resp.ShortLinkStatsAccessRecordRespDTO;
 import com.progsail.fastlink.project.dto.resp.ShortLinkStatsRespDTO;
 import com.progsail.fastlink.project.service.ShortLinkStatsService;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +29,13 @@ public class ShortLinkStatsController {
     @GetMapping("/api/fast-link/project/v1/stats")
     public Result<ShortLinkStatsRespDTO> shortLinkStats(ShortLinkStatsReqDTO requestParam) {
         return Results.success(shortLinkStatsService.oneShortLinkStats(requestParam));
+    }
+
+    /**
+     * 访问单个短链接指定时间内访问记录监控数据
+     */
+    @GetMapping("/api/fast-link/project/v1/stats/access-record")
+    public Result<IPage<ShortLinkStatsAccessRecordRespDTO>> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam) {
+        return Results.success(shortLinkStatsService.shortLinkStatsAccessRecord(requestParam));
     }
 }

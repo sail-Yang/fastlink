@@ -2,14 +2,16 @@ package com.progsail.fastlink.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.progsail.fastlink.project.common.convention.exception.ServiceException;
-import com.progsail.fastlink.project.dao.entity.ShortLinkAccessStatsDO;
-import com.progsail.fastlink.project.dao.entity.ShortLinkDeviceStatsDO;
-import com.progsail.fastlink.project.dao.entity.ShortLinkLocaleStatsDO;
-import com.progsail.fastlink.project.dao.entity.ShortLinkNetworkStatsDO;
+import com.progsail.fastlink.project.dao.entity.*;
 import com.progsail.fastlink.project.dao.mapper.*;
+import com.progsail.fastlink.project.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import com.progsail.fastlink.project.dto.req.ShortLinkStatsReqDTO;
 import com.progsail.fastlink.project.dto.resp.*;
 import com.progsail.fastlink.project.service.ShortLinkStatsService;
@@ -18,10 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -255,5 +254,44 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .networkStats(networkStats)
                 .uvTypeStats(uvTypeStats)
                 .build();
+    }
+
+    @Override
+    public IPage<ShortLinkStatsAccessRecordRespDTO> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam) {
+        LambdaQueryWrapper<ShortLinkAccessLogDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkAccessLogDO.class)
+                .eq(ShortLinkAccessLogDO::getGid, requestParam.getGid())
+                .eq(ShortLinkAccessLogDO::getFullShortUrl, requestParam.getFullShortUrl())
+                .between(ShortLinkAccessLogDO::getCreateTime, requestParam.getStartDate(), requestParam.getEndDate())
+                .eq(ShortLinkAccessLogDO::getDelFlag, 0)
+                .orderByDesc(ShortLinkAccessLogDO::getCreateTime);
+        //分页查询log表所有记录
+        IPage<ShortLinkAccessLogDO> shortLinkAccessLogsDOIPage = shortLinkAccessLogMapper.selectPage(requestParam, queryWrapper);
+        //转成返回实体
+        IPage<ShortLinkStatsAccessRecordRespDTO> actualResult = shortLinkAccessLogsDOIPage.convert(each -> BeanUtil.toBean(each, ShortLinkStatsAccessRecordRespDTO.class));
+        //提取User列表
+        List<String> userAccessLogsList = actualResult.getRecords().stream()
+                .map(ShortLinkStatsAccessRecordRespDTO::getUser)
+                .toList();
+        if(CollectionUtil.isEmpty(userAccessLogsList)){
+            return actualResult;
+        }
+        //TODO: 这里参数分开来，待优化
+        List<Map<String, Object>> uvTypeList = shortLinkAccessLogMapper.selectUvTypeByUsers(
+                requestParam.getGid(),
+                requestParam.getFullShortUrl(),
+                requestParam.getStartDate(),
+                requestParam.getEndDate(),
+                userAccessLogsList
+        );
+        actualResult.getRecords().forEach(each -> {
+            String uvType = uvTypeList.stream()
+                    .filter(item -> Objects.equals(each.getUser(), item.get("user")))
+                    .findFirst()
+                    .map(item -> item.get("uvType"))
+                    .map(Object::toString)
+                    .orElse("旧访客");
+            each.setUvType(uvType);
+        });
+        return actualResult;
     }
 }

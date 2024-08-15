@@ -2,6 +2,8 @@ package com.progsail.fastlink.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.admin.common.convention.result.Result;
+import com.progsail.fastlink.admin.dto.req.ShortLinkStatsAccessRecordReqDTO;
+import com.progsail.fastlink.admin.dto.resp.ShortLinkStatsAccessRecordRespDTO;
 import com.progsail.fastlink.admin.remote.ShortLinkRemoteService;
 import com.progsail.fastlink.admin.remote.dto.req.*;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
@@ -48,5 +50,10 @@ public class ShortLinkController {
     @GetMapping("/api/fast-link/admin/v1/stats")
     Result<ShortLinkStatsRespDTO> shortLinkStats(ShortLinkStatsReqDTO requestParam) {
         return shortLinkRemoteService.oneShortLinkStats(requestParam);
+    }
+
+    @GetMapping("/api/fast-link/admin/v1/stats/access-record")
+    Result<IPage<ShortLinkStatsAccessRecordRespDTO>> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam) {
+        return shortLinkRemoteService.shortLinkStatsAccessRecord(requestParam);
     }
 }

@@ -6,6 +6,8 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.admin.common.convention.result.Result;
+import com.progsail.fastlink.admin.dto.req.ShortLinkStatsAccessRecordReqDTO;
+import com.progsail.fastlink.admin.dto.resp.ShortLinkStatsAccessRecordRespDTO;
 import com.progsail.fastlink.admin.remote.ShortLinkRemoteService;
 import com.progsail.fastlink.admin.remote.dto.req.*;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
@@ -110,6 +112,13 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService {
     @Override
     public Result<ShortLinkStatsRespDTO> oneShortLinkStats(ShortLinkStatsReqDTO requestParam) {
         String resultBodyStr = HttpUtil.get("http://127.0.0.1:8001/api/fast-link/project/v1/stats", BeanUtil.beanToMap(requestParam));
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {
+        });
+    }
+
+    @Override
+    public Result<IPage<ShortLinkStatsAccessRecordRespDTO>> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam) {
+        String resultBodyStr = HttpUtil.get("http://127.0.0.1:8001/api/fast-link/project/v1/stats/access-record", BeanUtil.beanToMap(requestParam));
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {
         });
     }

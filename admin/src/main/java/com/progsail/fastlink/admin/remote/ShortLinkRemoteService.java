@@ -2,6 +2,8 @@ package com.progsail.fastlink.admin.remote;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.progsail.fastlink.admin.common.convention.result.Result;
+import com.progsail.fastlink.admin.dto.req.ShortLinkStatsAccessRecordReqDTO;
+import com.progsail.fastlink.admin.dto.resp.ShortLinkStatsAccessRecordRespDTO;
 import com.progsail.fastlink.admin.remote.dto.req.*;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.progsail.fastlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
@@ -31,4 +33,6 @@ public interface ShortLinkRemoteService {
     Result<Void> updateShortLink(ShortLinkUpdateReqDTO requestParam);
 
     Result<ShortLinkStatsRespDTO> oneShortLinkStats(ShortLinkStatsReqDTO requestParam);
+
+    Result<IPage<ShortLinkStatsAccessRecordRespDTO>> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam);
 }
