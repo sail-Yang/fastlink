@@ -9,6 +9,6 @@ spring:
 
   data:
     redis:
-      host: 10.135.37.131
+      host: 121.199.53.235
       port: 6379
       password: yfyfyf
